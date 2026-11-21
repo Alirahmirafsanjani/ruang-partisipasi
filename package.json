@@ -1,0 +1,32 @@
+{
+  "name": "ruang-partisipasi",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "netlify dev",
+    "dev:vite": "vite",
+    "build": "npm run typecheck && vite build",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.functions.json",
+    "preview": "vite preview",
+    "functions:serve": "netlify functions:serve",
+    "template:embed": "node scripts/embed-template.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.47.10",
+    "lucide-react": "^0.468.0",
+    "pdf-lib": "^1.17.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.3.4",
+    "netlify-cli": "^27.20.1",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.5"
+  }
+}
