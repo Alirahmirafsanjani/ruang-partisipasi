@@ -39,15 +39,19 @@ export interface EventIdentity {
   /** Tanggal dalam format siap tampil, cocok untuk sertifikat. */
   dateLabel: string;
   organizer: string;
+  location: string;
+  theme: string;
 }
 
 export const EVENT: EventIdentity = {
   eventId: 'ruang-partisipasi-2026',
-  title: 'Ruang Partisipasi 2026',
+  title: 'Bakti Sosial HIMSI UAA',
   subtitle:
-    'Ruang untuk berbagi pengalaman, menyampaikan gagasan, dan memberikan kontribusi bagi kegiatan yang lebih baik.',
+    'Berbagi dengan hati, menginspirasi dengan peduli. Mari bersama menebar kebaikan dan kepedulian melalui kegiatan bakti sosial.',
   dateLabel: '21 November 2026',
-  organizer: 'Komunitas Ruang Partisipasi',
+  organizer: 'HIMSI Universitas Alma Ata',
+  location: 'LKSA Panti Asuhan Muhammadiyah Wates',
+  theme: 'Berbagi dengan Hati, Menginspirasi dengan Peduli',
 };
 
 /**
@@ -133,6 +137,8 @@ export function getPublicEventConfig() {
     subtitle: EVENT.subtitle,
     dateLabel: EVENT.dateLabel,
     organizer: EVENT.organizer,
+    location: EVENT.location,
+    theme: EVENT.theme,
     questions: QUESTIONS.map(({ id, label, type, required, hint, placeholder, maxLength }) => ({
       id,
       label,

@@ -16,6 +16,8 @@ export interface EventConfig {
   subtitle: string;
   dateLabel: string;
   organizer: string;
+  location?: string;
+  theme?: string;
   questions: FeedbackQuestion[];
 }
 
@@ -24,14 +26,28 @@ export interface Participant {
   fullName: string;
 }
 
+export interface CertificateInfo {
+  number: string;
+  letterNumber: string;
+  ready: boolean;
+  url: string | null;
+  expiresInSeconds: number | null;
+}
+
 export interface VerifyResponse {
   verified: boolean;
+  alreadySubmitted?: boolean;
   participant: Participant;
   event: {
     title: string;
     dateLabel: string;
     organizer: string;
   };
+  feedback?: {
+    submitted: boolean;
+    submittedAt: string;
+  };
+  certificate?: CertificateInfo;
 }
 
 export interface AnswerPayload {

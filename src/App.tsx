@@ -17,12 +17,14 @@ import type {
 } from './types';
 
 const FALLBACK = {
-  title: import.meta.env.VITE_EVENT_TITLE || 'Ruang Partisipasi 2026',
+  title: import.meta.env.VITE_EVENT_TITLE || 'Bakti Sosial HIMSI UAA',
   subtitle:
     import.meta.env.VITE_EVENT_SUBTITLE ||
-    'Ruang untuk berbagi pengalaman, menyampaikan gagasan, dan memberikan kontribusi bagi kegiatan yang lebih baik.',
+    'Berbagi dengan hati, menginspirasi dengan peduli. Mari bersama menebar kebaikan dan kepedulian melalui kegiatan bakti sosial.',
   dateLabel: import.meta.env.VITE_EVENT_DATE || '21 November 2026',
-  organizer: import.meta.env.VITE_EVENT_ORGANIZER || 'Komunitas Ruang Partisipasi',
+  organizer: import.meta.env.VITE_EVENT_ORGANIZER || 'HIMSI Universitas Alma Ata',
+  location: import.meta.env.VITE_EVENT_LOCATION || 'LKSA Panti Asuhan Muhammadiyah Wates',
+  theme: import.meta.env.VITE_EVENT_THEME || 'Berbagi dengan Hati, Menginspirasi dengan Peduli',
 };
 
 type Step = 1 | 2 | 3;
@@ -84,6 +86,16 @@ function App() {
     try {
       const response = await verifyParticipant(normalizedNim, normalizedFullName);
       setParticipant(response.participant);
+      if (response.alreadySubmitted && response.feedback && response.certificate) {
+        setResult({
+          success: true,
+          participant: response.participant,
+          feedback: response.feedback,
+          certificate: response.certificate,
+        });
+        goTo(3);
+        return;
+      }
       goTo(2);
     } catch (error) {
       const apiError = error as ApiError;
@@ -188,16 +200,20 @@ function App() {
   const eventSubtitle = config?.subtitle ?? FALLBACK.subtitle;
   const dateLabel = config?.dateLabel ?? FALLBACK.dateLabel;
   const organizer = config?.organizer ?? FALLBACK.organizer;
+  const location = config?.location ?? FALLBACK.location;
+  const theme = config?.theme ?? FALLBACK.theme;
 
   return (
     <div className="app-shell">
-      <Header dateLabel={dateLabel} />
+      <Header dateLabel={dateLabel} title={eventTitle} />
       <main>
         <Hero
           eventTitle={eventTitle}
           subtitle={eventSubtitle}
           organizer={organizer}
           dateLabel={dateLabel}
+          location={location}
+          theme={theme}
         />
 
         <section className="container flow-section" aria-label="Formulir kegiatan">
@@ -254,7 +270,7 @@ function App() {
           {step === 3 && result && <SuccessCard result={result} />}
         </section>
       </main>
-      <Footer organizer={organizer} dateLabel={dateLabel} />
+      <Footer organizer={organizer} dateLabel={dateLabel} location={location} />
     </div>
   );
 }
