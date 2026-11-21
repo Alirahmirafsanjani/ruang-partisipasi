@@ -78,36 +78,35 @@ export default handleErrors(async (request: Request): Promise<Response> => {
       submission.certificate_path ||
       `${safePathPart(eventId)}/${safePathPart(letterNumber)}.pdf`;
 
-    if (!submission.certificate_path || !submission.certificate_generated_at) {
-      const pdfBytes = await generateCertificatePdf({
-        letterNumber,
-        fullName: submission.full_name,
+    // Selalu regenerate agar template terbaru terpakai.
+    const pdfBytes = await generateCertificatePdf({
+      letterNumber,
+      fullName: submission.full_name,
+    });
+
+    const { error: uploadError } = await supabase.storage
+      .from(CERTIFICATE_BUCKET)
+      .upload(storagePath, pdfBytes, {
+        contentType: 'application/pdf',
+        upsert: true,
       });
-
-      const { error: uploadError } = await supabase.storage
-        .from(CERTIFICATE_BUCKET)
-        .upload(storagePath, pdfBytes, {
-          contentType: 'application/pdf',
-          upsert: true,
-        });
-      if (uploadError) {
-        console.error('[recover-certificate] Upload failed:', uploadError);
-        return errorResponse('Gagal mengunggah sertifikat. Silakan coba lagi.', 503, 'UPLOAD_ERROR');
-      }
-
-      const { error: updateError } = await supabase
-        .from('feedback_submissions')
-        .update({
-          certificate_path: storagePath,
-          certificate_generated_at: new Date().toISOString(),
-        })
-        .eq('id', submission.id);
-      if (updateError) {
-        console.error('[recover-certificate] Update failed:', updateError);
-        return errorResponse('Layanan sedang terganggu. Silakan coba lagi.', 503, 'DATABASE_ERROR');
-      }
-      console.info(`[recover-certificate] Certificate repaired for ${submission.certificate_number}`);
+    if (uploadError) {
+      console.error('[recover-certificate] Upload failed:', uploadError);
+      return errorResponse('Gagal mengunggah sertifikat. Silakan coba lagi.', 503, 'UPLOAD_ERROR');
     }
+
+    const { error: updateError } = await supabase
+      .from('feedback_submissions')
+      .update({
+        certificate_path: storagePath,
+        certificate_generated_at: new Date().toISOString(),
+      })
+      .eq('id', submission.id);
+    if (updateError) {
+      console.error('[recover-certificate] Update failed:', updateError);
+      return errorResponse('Layanan sedang terganggu. Silakan coba lagi.', 503, 'DATABASE_ERROR');
+    }
+    console.info(`[recover-certificate] Certificate regenerated for ${submission.certificate_number}`);
 
     const { data: signed, error: signError } = await supabase.storage
       .from(CERTIFICATE_BUCKET)

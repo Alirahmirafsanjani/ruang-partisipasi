@@ -80,24 +80,23 @@ export default handleErrors(async (request: Request): Promise<Response> => {
 
       let certificateUrl: string | null = null;
       try {
-        if (!existing.certificate_path || !existing.certificate_generated_at) {
-          const pdfBytes = await generateCertificatePdf({
-            letterNumber,
-            fullName: existing.full_name,
-          });
-          const { error: uploadError } = await supabase.storage
-            .from(CERTIFICATE_BUCKET)
-            .upload(storagePath, pdfBytes, { contentType: 'application/pdf', upsert: true });
-          if (uploadError) throw uploadError;
-          const { error: updateError } = await supabase
-            .from('feedback_submissions')
-            .update({
-              certificate_path: storagePath,
-              certificate_generated_at: new Date().toISOString(),
-            })
-            .eq('id', existing.id);
-          if (updateError) throw updateError;
-        }
+        // Selalu regenerate agar template terbaru terpakai saat peserta unduh ulang.
+        const pdfBytes = await generateCertificatePdf({
+          letterNumber,
+          fullName: existing.full_name,
+        });
+        const { error: uploadError } = await supabase.storage
+          .from(CERTIFICATE_BUCKET)
+          .upload(storagePath, pdfBytes, { contentType: 'application/pdf', upsert: true });
+        if (uploadError) throw uploadError;
+        const { error: updateError } = await supabase
+          .from('feedback_submissions')
+          .update({
+            certificate_path: storagePath,
+            certificate_generated_at: new Date().toISOString(),
+          })
+          .eq('id', existing.id);
+        if (updateError) throw updateError;
 
         const { data: signed, error: signError } = await supabase.storage
           .from(CERTIFICATE_BUCKET)
